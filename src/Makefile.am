@@ -16,9 +16,11 @@ rtl_433_SOURCES      = abuf.c \
                        list.c \
                        mongoose.c \
                        optparse.c \
+                       output_influx.c \
                        output_mqtt.c \
                        pulse_demod.c \
                        pulse_detect.c \
+                       pulse_detect_fsk.c \
                        r_api.c \
                        r_util.c \
                        rtl_433.c \
@@ -32,6 +34,8 @@ rtl_433_SOURCES      = abuf.c \
                        devices/ambient_weather.c \
                        devices/ambientweather_tx8300.c \
                        devices/ambientweather_wh31e.c \
+                       devices/archos_tbh.c \
+                       devices/auriol_hg02832.c \
                        devices/blyss.c \
                        devices/brennenstuhl_rcs_2044.c \
                        devices/bresser_3ch.c \
@@ -54,6 +58,7 @@ rtl_433_SOURCES      = abuf.c \
                        devices/elv.c \
                        devices/emontx.c \
                        devices/esa.c \
+                       devices/esic_emt7110.c \
                        devices/esperanza_ews.c \
                        devices/eurochron.c \
                        devices/fineoffset.c \
@@ -67,7 +72,9 @@ rtl_433_SOURCES      = abuf.c \
                        devices/generic_motion.c \
                        devices/generic_remote.c \
                        devices/generic_temperature_sensor.c \
+                       devices/gt_tmbbq05.c \
                        devices/gt_wt_02.c \
+                       devices/gt_wt_03.c \
                        devices/hcs200.c \
                        devices/hideki.c \
                        devices/holman_ws5029.c \
@@ -84,7 +91,7 @@ rtl_433_SOURCES      = abuf.c \
                        devices/kedsum.c \
                        devices/kerui.c \
                        devices/lacrosse.c \
-                       devices/lacrosse_TX141TH_Bv2.c \
+                       devices/lacrosse_tx141x.c \
                        devices/lacrosse_tx35.c \
                        devices/lacrosse_ws7000.c \
                        devices/lacrossews.c \
@@ -97,13 +104,15 @@ rtl_433_SOURCES      = abuf.c \
                        devices/newkaku.c \
                        devices/nexa.c \
                        devices/nexus.c \
+                       devices/norgo.c \
                        devices/oil_standard.c \
                        devices/oil_watchman.c \
                        devices/opus_xt300.c \
                        devices/oregon_scientific.c \
                        devices/oregon_scientific_sl109h.c \
                        devices/oregon_scientific_v1.c \
-                       devices/philips.c \
+                       devices/philips_aj3650.c \
+                       devices/philips_aj7010.c \
                        devices/prologue.c \
                        devices/proove.c \
                        devices/quhwa.c \
@@ -125,6 +134,7 @@ rtl_433_SOURCES      = abuf.c \
                        devices/thermopro_tp11.c \
                        devices/thermopro_tp12.c \
                        devices/tpms_citroen.c \
+                       devices/tpms_elantra2012.c \
                        devices/tpms_ford.c \
                        devices/tpms_jansite.c \
                        devices/tpms_pmv107j.c \
@@ -135,6 +145,7 @@ rtl_433_SOURCES      = abuf.c \
                        devices/vaillant_vrt340f.c \
                        devices/waveman.c \
                        devices/wg_pb12v1.c \
+                       devices/ws2032.c \
                        devices/wssensor.c \
                        devices/wt0124.c \
                        devices/wt450.c \

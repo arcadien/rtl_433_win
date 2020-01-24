@@ -24,11 +24,13 @@
 #define ID_RTGN318  0x0cc3 // warning: id is from 0x0cc3 and 0xfcc3
 #define ID_RTGN129  0x0cc3 // same as RTGN318 but different packet size
 #define ID_THGR810  0xf824
+#define ID_THGR810a 0xf8b4 // unconfirmed version
 #define ID_THN802   0xc844
 #define ID_PCR800   0x2914
 #define ID_PCR800a  0x2d14 // Different PCR800 ID - AU version I think
 #define ID_THGR81   0xf824
 #define ID_WGR800   0x1984
+#define ID_WGR800a  0x1994 // unconfirmed version
 #define ID_WGR968   0x3d00
 #define ID_UV800    0xd874
 #define ID_THN129   0xcc43 // THN129 Temp only
@@ -112,15 +114,17 @@ static unsigned int get_os_rollingcode(unsigned char *message)
     return rc;
 }
 
-static unsigned short int power(uint8_t const *msg)
+static unsigned short int cm180_power(uint8_t const *msg)
 {
     unsigned short int val = 0;
     val = (msg[4] << 8) | (msg[3] & 0xF0);
-    val *= 1.00188; // unknown if correct
+    // tested accross situations varying from 700 watt to more than 8000 watt to
+    // get same value as showed in physical CM180 panel (exactly equals to 1+1/160)
+    val *= 1.00625;
     return val;
 }
 
-static unsigned long long total(uint8_t const *msg)
+static unsigned long long cm180_total(uint8_t const *msg)
 {
     unsigned long long val = 0;
     if ((msg[1] & 0x0F) == 0) {
@@ -232,7 +236,7 @@ static int oregon_scientific_v2_1_decode(r_device *decoder, bitbuffer_t *bitbuff
 
     int sensor_id = (msg[0] << 8) | msg[1];
     if (decoder->verbose) {
-      fprintf(stdout,"Found sensor_id (%08x)\n",sensor_id);
+      fprintf(stderr,"Found sensor_id (%08x)\n",sensor_id);
     }
     if ((sensor_id == ID_THGR122N) || (sensor_id == ID_THGR968)) {
         if (validate_os_v2_message(decoder, msg, 76, msg_bits, 15) != 0)
@@ -388,7 +392,7 @@ static int oregon_scientific_v2_1_decode(r_device *decoder, bitbuffer_t *bitbuff
         int minutes = ((msg[5] & 0x0F) * 10) + ((msg[5] & 0xF0) >> 4);
         int seconds = ((msg[4] & 0x0F) * 10) + ((msg[4] & 0xF0) >> 4);
 
-        char clock_str[23];
+        char clock_str[24];
         sprintf(clock_str, "%04d-%02d-%02dT%02d:%02d:%02d",
                 year, month, day, hours, minutes, seconds);
 
@@ -510,50 +514,61 @@ static int oregon_scientific_v3_decode(r_device *decoder, bitbuffer_t *bitbuffer
     uint8_t *b = bitbuffer->bb[0];
     data_t *data;
 
-    // Check stream for possible Oregon Scientific v3 protocol data (skip part of first and last bytes to get past sync/startup bit errors)
+    // Check stream for possible Oregon Scientific v3 protocol preamble
     if ((((b[0]&0xf) != 0x0f) || (b[1] != 0xff) || ((b[2]&0xc0) != 0xc0))
             && (((b[0]&0xf) != 0x00) || (b[1] != 0x00) || ((b[2]&0xc0) != 0x00))) {
         if (b[3] != 0) {
             if (decoder->verbose)
                 bitrow_printf(b, bitbuffer->bits_per_row[0], "Unrecognized Msg in OS v3: ");
         }
-        return 0;
+        return DECODE_ABORT_EARLY;
     }
 
     unsigned char msg[BITBUF_COLS] = {0};
+    int msg_pos = 0;
     int msg_len = 0;
-    unsigned int sync_test_val     = ((unsigned)b[2] << 24) | (b[3] << 16) | (b[4] << 8);
-    // Could be extra/dropped bits in stream.    Look for sync byte at expected position +/- some bits in either direction
-    for (int pattern_index = 0; pattern_index < 16; pattern_index++) {
-        unsigned int mask     = (unsigned int)(0xfff00000 >> pattern_index);
-        unsigned int pattern  = (unsigned int)(0xffa00000 >> pattern_index);
-        unsigned int pattern2 = (unsigned int)(0xff500000 >> pattern_index);
-        unsigned int pattern3 = (unsigned int)(0x00500000 >> pattern_index);
-        unsigned int pattern4 = (unsigned int)(0x04600000 >> pattern_index);
-        //fprintf(stdout, "OS v3 Sync nibble search - test_val=%08x pattern=%08x    mask=%08x\n", sync_test_val, pattern, mask);
-        if (((sync_test_val & mask) != pattern)
-                && ((sync_test_val & mask) != pattern2)
-                && ((sync_test_val & mask) != pattern3)
-                && ((sync_test_val & mask) != pattern4))
-            continue;
 
-        // Found sync byte - start working on decoding the stream data.
-        // pattern_index indicates    where sync nibble starts, so now we can find the start of the payload
-        int start_byte = 3 + (pattern_index >> 3);
-        int start_bit  = (pattern_index + 4) & 0x07; // this really looks broken
+    // e.g. WGR800X has {335} 00 00 00 b1 22 40 0e 00 06 00 00 00 19 7c   00 00 00 b1 22 40 0e 00 06 00 00 00 19 7c   00 00 00 b1 22 40 0e 00 06 00 00 00 19 7c
+    // aligned (at 11) and reflected that's 3 packets:
+    // {324} 00 0a 19 84 00 e0 00 c0 00 00 00 3d 70   00 00 0a 19 84 00 e0 00 c0 00 00 00 3d 70   00 00 0a 19 84 00 e0 00 c0 00 00 00 3d 70
 
-        int msg_pos = start_byte * 8 + start_bit; // this should be pattern_index + 28; or 20, maybe.
-        msg_len = bitbuffer->bits_per_row[0] - msg_pos;
-        //fprintf(stderr, "Oregon Scientific v3 Sync test val %08x ok, starting decode at bit %d\n", sync_test_val, msg_pos);
+    // full preamble is 00 00 00 5 (shorter for WGR800X)
+    uint8_t const os_pattern[] = {0x00, 0x05};
+    // CM180 preamble is 00 00 00 46, with 0x46 already data
+    uint8_t const cm180_pattern[] = {0x00, 0x46};
+    // workaround for a broken manchester demod
+    // CM160 preamble might look like 7f ff ff aa, i.e. ff ff f5
+    uint8_t const alt_pattern[] = {0xff, 0xf5};
 
-        bitbuffer_extract_bytes(bitbuffer, 0, msg_pos, msg, msg_len);
-        reflect_nibbles(msg, (msg_len + 7) / 8);
+    int os_pos    = bitbuffer_search(bitbuffer, 0, 0, os_pattern, 16) + 16;
+    int cm180_pos = bitbuffer_search(bitbuffer, 0, 0, cm180_pattern, 16) + 8; // keep the 0x46
+    int alt_pos   = bitbuffer_search(bitbuffer, 0, 0, alt_pattern, 16) + 16;
 
-        break;
+    if (bitbuffer->bits_per_row[0] - os_pos >= 7 * 8) {
+        msg_pos = os_pos;
+        msg_len = bitbuffer->bits_per_row[0] - os_pos;
     }
 
+    // 52 bits: secondary frame (instant watts only)
+    // 108 bits: primary frame (instant watts + cumulative wattshour)
+    else if (bitbuffer->bits_per_row[0] - cm180_pos >= 52) {
+        msg_pos = cm180_pos;
+        msg_len = bitbuffer->bits_per_row[0] - cm180_pos;
+    }
+
+    else if (bitbuffer->bits_per_row[0] - alt_pos >= 7 * 8) {
+        msg_pos = alt_pos;
+        msg_len = bitbuffer->bits_per_row[0] - alt_pos;
+    }
+
+    if (msg_len == 0)
+        return DECODE_ABORT_EARLY;
+
+    bitbuffer_extract_bytes(bitbuffer, 0, msg_pos, msg, msg_len);
+    reflect_nibbles(msg, (msg_len + 7) / 8);
+
     int sensor_id = (msg[0] << 8) | msg[1];
-    if (sensor_id == ID_THGR810) {
+    if (sensor_id == ID_THGR810 || sensor_id == ID_THGR810a) {
         if (validate_os_checksum(decoder, msg, 15) != 0)
             return 0;
         float temp_c = get_os_temperature(msg);
@@ -634,7 +649,7 @@ static int oregon_scientific_v3_decode(r_device *decoder, bitbuffer_t *bitbuffer
         decoder_output_data(decoder, data);
         return 1;
     }
-    else if (sensor_id == ID_WGR800) {
+    else if (sensor_id == ID_WGR800 || sensor_id == ID_WGR800a) {
         if (validate_os_checksum(decoder, msg, 17) != 0)
             return 0;
         float gustWindspeed = (msg[5]&0x0f) /10.0F + ((msg[6]>>4)&0x0f) *1.0F + (msg[6]&0x0f) * 10.0F;
@@ -674,32 +689,41 @@ static int oregon_scientific_v3_decode(r_device *decoder, bitbuffer_t *bitbuffer
         for (int k = 0; k < BITBUF_COLS; k++) { // Reverse nibbles
             msg[k] = (msg[k] & 0xF0) >> 4 | (msg[k] & 0x0F) << 4;
         }
-        unsigned short int ipower = power(msg);
-        unsigned long long itotal = total(msg);
+
+        int sequence = msg[1] & 0x0F;
+        int id       = msg[2] << 8 | (msg[1] & 0xF0);
+        int batt_low = (msg[3] & 0x1); // 8th bit instead of 6th commonly used for other devices
+
+        unsigned short int ipower = cm180_power(msg);
+        unsigned long long itotal = cm180_total(msg);
         float total_energy        = itotal / 3600.0 / 1000.0;
         if (itotal && valid == 0) {
             data = data_make(
-                    "brand",            "",                     DATA_STRING, "OS",
-                    "model",            "",                     DATA_STRING,    _X("Oregon-CM180","CM180"),
-                    "id",                 "House Code", DATA_INT, msg[1]&0x0F,
-                    "power_W",        "Power",            DATA_FORMAT,    "%d W",DATA_INT, ipower,
-                    "energy_kWh", "Energy",         DATA_FORMAT,    "%2.2f kWh",DATA_DOUBLE, total_energy,
+                    "brand",            "",                 DATA_STRING, "OS",
+                    "model",            "",                 DATA_STRING, _X("Oregon-CM180","CM180"),
+                    "id",               "House Code",       DATA_INT,    id,
+                    "battery",          "Battery",          DATA_STRING, batt_low ? "LOW" : "OK",
+                    "power_W",          "Power",            DATA_FORMAT, "%d W",DATA_INT, ipower,
+                    "energy_kWh",       "Energy",           DATA_FORMAT, "%2.2f kWh",DATA_DOUBLE, total_energy,
+                    "sequence",	        "sequence number",	DATA_INT,    sequence,
                     NULL);
             decoder_output_data(decoder, data);
             return 1;
         }
         else if (!itotal) {
             data = data_make(
-                    "brand",    "",                     DATA_STRING, "OS",
-                    "model",    "",                     DATA_STRING,    _X("Oregon-CM180","CM180"),
-                    "id",         "House Code", DATA_INT, msg[1]&0x0F,
-                    "power_W", "Power",         DATA_FORMAT,    "%d W",DATA_INT, ipower,
+                    "brand",            "",                 DATA_STRING, "OS",
+                    "model",            "",                 DATA_STRING, _X("Oregon-CM180","CM180"),
+                    "id",               "House Code",       DATA_INT,    id,
+                    "battery",          "Battery",          DATA_STRING, batt_low ? "LOW" : "OK",
+                    "power_W",          "Power",            DATA_FORMAT, "%d W",DATA_INT, ipower,
+                    "sequence",         "sequence number",  DATA_INT,    sequence,
                     NULL);
             decoder_output_data(decoder, data);
             return 1;
         }
     }
-    else if ((msg[0] != 0) && (msg[1]!= 0)) { // sync nibble was found    and some data is present...
+    else if ((msg[0] != 0) && (msg[1] != 0)) { // sync nibble was found and some data is present...
         if (decoder->verbose) {
             fprintf(stderr, "Message received from unrecognized Oregon Scientific v3 sensor.\n");
             bitrow_printf(msg, msg_len, "Message: ");
@@ -718,7 +742,7 @@ static int oregon_scientific_v3_decode(r_device *decoder, bitbuffer_t *bitbuffer
 static int oregon_scientific_decode(r_device *decoder, bitbuffer_t *bitbuffer)
 {
     int ret = oregon_scientific_v2_1_decode(decoder, bitbuffer);
-    if (ret == 0)
+    if (ret <= 0)
         ret = oregon_scientific_v3_decode(decoder, bitbuffer);
     return ret;
 }
@@ -748,6 +772,7 @@ static char *output_fields[] = {
         "power_W",
         "energy_kWh",
         "radio_clock",
+        "sequence",
         NULL,
 };
 

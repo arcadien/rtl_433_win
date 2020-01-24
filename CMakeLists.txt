@@ -196,6 +196,12 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 ########################################################################
+# Build tests with analyzer
+########################################################################
+option(BUILD_TESTING_ANALYZER "Build the testing tree with static
+analyzer (requires Clang)" OFF)
+
+########################################################################
 # Build tests
 ########################################################################
 include(CTest) # note: this adds a BUILD_TESTING which defaults to ON
@@ -234,3 +240,7 @@ INSTALL(
     FILES
     DESTINATION lib/pkgconfig
 )
+
+install(DIRECTORY man
+    DESTINATION share
+    PATTERN ".md" EXCLUDE)

@@ -95,13 +95,16 @@
     <ClInclude Include="..\include\data.h" />
     <ClInclude Include="..\include\decoder.h" />
     <ClInclude Include="..\include\decoder_util.h" />
+    <ClInclude Include="..\include\fatal.h" />
     <ClInclude Include="..\include\fileformat.h" />
     <ClInclude Include="..\include\list.h" />
     <ClInclude Include="..\include\mongoose.h" />
     <ClInclude Include="..\include\optparse.h" />
+    <ClInclude Include="..\include\output_influx.h" />
     <ClInclude Include="..\include\output_mqtt.h" />
     <ClInclude Include="..\include\pulse_demod.h" />
     <ClInclude Include="..\include\pulse_detect.h" />
+    <ClInclude Include="..\include\pulse_detect_fsk.h" />
     <ClInclude Include="..\include\r_api.h" />
     <ClInclude Include="..\include\r_device.h" />
     <ClInclude Include="..\include\r_private.h" />
@@ -128,9 +131,11 @@
     <ClCompile Include="..\src\list.c" />
     <ClCompile Include="..\src\mongoose.c" />
     <ClCompile Include="..\src\optparse.c" />
+    <ClCompile Include="..\src\output_influx.c" />
     <ClCompile Include="..\src\output_mqtt.c" />
     <ClCompile Include="..\src\pulse_demod.c" />
     <ClCompile Include="..\src\pulse_detect.c" />
+    <ClCompile Include="..\src\pulse_detect_fsk.c" />
     <ClCompile Include="..\src\r_api.c" />
     <ClCompile Include="..\src\r_util.c" />
     <ClCompile Include="..\src\rtl_433.c" />
@@ -144,6 +149,8 @@
     <ClCompile Include="..\src\devices\ambient_weather.c" />
     <ClCompile Include="..\src\devices\ambientweather_tx8300.c" />
     <ClCompile Include="..\src\devices\ambientweather_wh31e.c" />
+    <ClCompile Include="..\src\devices\archos_tbh.c" />
+    <ClCompile Include="..\src\devices\auriol_hg02832.c" />
     <ClCompile Include="..\src\devices\blyss.c" />
     <ClCompile Include="..\src\devices\brennenstuhl_rcs_2044.c" />
     <ClCompile Include="..\src\devices\bresser_3ch.c" />
@@ -166,6 +173,7 @@
     <ClCompile Include="..\src\devices\elv.c" />
     <ClCompile Include="..\src\devices\emontx.c" />
     <ClCompile Include="..\src\devices\esa.c" />
+    <ClCompile Include="..\src\devices\esic_emt7110.c" />
     <ClCompile Include="..\src\devices\esperanza_ews.c" />
     <ClCompile Include="..\src\devices\eurochron.c" />
     <ClCompile Include="..\src\devices\fineoffset.c" />
@@ -179,7 +187,9 @@
     <ClCompile Include="..\src\devices\generic_motion.c" />
     <ClCompile Include="..\src\devices\generic_remote.c" />
     <ClCompile Include="..\src\devices\generic_temperature_sensor.c" />
+    <ClCompile Include="..\src\devices\gt_tmbbq05.c" />
     <ClCompile Include="..\src\devices\gt_wt_02.c" />
+    <ClCompile Include="..\src\devices\gt_wt_03.c" />
     <ClCompile Include="..\src\devices\hcs200.c" />
     <ClCompile Include="..\src\devices\hideki.c" />
     <ClCompile Include="..\src\devices\holman_ws5029.c" />
@@ -196,7 +206,7 @@
     <ClCompile Include="..\src\devices\kedsum.c" />
     <ClCompile Include="..\src\devices\kerui.c" />
     <ClCompile Include="..\src\devices\lacrosse.c" />
-    <ClCompile Include="..\src\devices\lacrosse_TX141TH_Bv2.c" />
+    <ClCompile Include="..\src\devices\lacrosse_tx141x.c" />
     <ClCompile Include="..\src\devices\lacrosse_tx35.c" />
     <ClCompile Include="..\src\devices\lacrosse_ws7000.c" />
     <ClCompile Include="..\src\devices\lacrossews.c" />
@@ -209,13 +219,15 @@
     <ClCompile Include="..\src\devices\newkaku.c" />
     <ClCompile Include="..\src\devices\nexa.c" />
     <ClCompile Include="..\src\devices\nexus.c" />
+    <ClCompile Include="..\src\devices\norgo.c" />
     <ClCompile Include="..\src\devices\oil_standard.c" />
     <ClCompile Include="..\src\devices\oil_watchman.c" />
     <ClCompile Include="..\src\devices\opus_xt300.c" />
     <ClCompile Include="..\src\devices\oregon_scientific.c" />
     <ClCompile Include="..\src\devices\oregon_scientific_sl109h.c" />
     <ClCompile Include="..\src\devices\oregon_scientific_v1.c" />
-    <ClCompile Include="..\src\devices\philips.c" />
+    <ClCompile Include="..\src\devices\philips_aj3650.c" />
+    <ClCompile Include="..\src\devices\philips_aj7010.c" />
     <ClCompile Include="..\src\devices\prologue.c" />
     <ClCompile Include="..\src\devices\proove.c" />
     <ClCompile Include="..\src\devices\quhwa.c" />
@@ -237,6 +249,7 @@
     <ClCompile Include="..\src\devices\thermopro_tp11.c" />
     <ClCompile Include="..\src\devices\thermopro_tp12.c" />
     <ClCompile Include="..\src\devices\tpms_citroen.c" />
+    <ClCompile Include="..\src\devices\tpms_elantra2012.c" />
     <ClCompile Include="..\src\devices\tpms_ford.c" />
     <ClCompile Include="..\src\devices\tpms_jansite.c" />
     <ClCompile Include="..\src\devices\tpms_pmv107j.c" />
@@ -247,6 +260,7 @@
     <ClCompile Include="..\src\devices\vaillant_vrt340f.c" />
     <ClCompile Include="..\src\devices\waveman.c" />
     <ClCompile Include="..\src\devices\wg_pb12v1.c" />
+    <ClCompile Include="..\src\devices\ws2032.c" />
     <ClCompile Include="..\src\devices\wssensor.c" />
     <ClCompile Include="..\src\devices\wt0124.c" />
     <ClCompile Include="..\src\devices\wt450.c" />

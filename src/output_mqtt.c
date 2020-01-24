@@ -13,6 +13,7 @@
 #include "output_mqtt.h"
 #include "optparse.h"
 #include "util.h"
+#include "fatal.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -95,16 +96,13 @@ static void mqtt_client_event(struct mg_connection *nc, int ev, void *ev_data)
 static struct mg_mgr *mqtt_client_init(char const *host, char const *port, char const *user, char const *pass, char const *client_id, int retain)
 {
     struct mg_mgr *mgr = calloc(1, sizeof(*mgr));
-    if (!mgr) {
-        fprintf(stderr, "calloc() failed in %s() %s:%d\n", __func__, __FILE__, __LINE__);
-        exit(1);
-    }
+    if (!mgr)
+        FATAL_CALLOC("mqtt_client_init()");
 
     mqtt_client_t *ctx = calloc(1, sizeof(*ctx));
-    if (!ctx) {
-        fprintf(stderr, "calloc() failed in %s() %s:%d\n", __func__, __FILE__, __LINE__);
-        exit(1);
-    }
+    if (!ctx)
+        FATAL_CALLOC("mqtt_client_init()");
+
     ctx->opts.user_name = user;
     ctx->opts.password  = pass;
     ctx->publish_flags  = MG_MQTT_QOS(0) | (retain ? MG_MQTT_RETAIN : 0);
@@ -179,7 +177,7 @@ typedef struct {
     //char *hass;
 } data_output_mqtt_t;
 
-static void print_mqtt_array(data_output_t *output, data_array_t *array, char *format)
+static void print_mqtt_array(data_output_t *output, data_array_t *array, char const *format)
 {
     data_output_mqtt_t *mqtt = (data_output_mqtt_t *)output;
 
@@ -195,12 +193,12 @@ static void print_mqtt_array(data_output_t *output, data_array_t *array, char *f
 static char *append_topic(char *topic, data_t *data)
 {
     if (data->type == DATA_STRING) {
-        strcpy(topic, data->value);
+        strcpy(topic, data->value.v_ptr);
         mqtt_sanitize_topic(topic);
-        topic += strlen(data->value);
+        topic += strlen(data->value.v_ptr);
     }
     else if (data->type == DATA_INT) {
-        topic += sprintf(topic, "%d", *(int *)data->value);
+        topic += sprintf(topic, "%d", data->value.v_int);
     }
     else {
         fprintf(stderr, "Can't append data type %d to topic\n", data->type);
@@ -217,6 +215,7 @@ static char *expand_topic(char *topic, char const *format, data_t *data, char co
     data_t *data_subtype = NULL;
     data_t *data_channel = NULL;
     data_t *data_id      = NULL;
+    data_t *data_protocol = NULL;
     for (data_t *d = data; d; d = d->next) {
         if (!strcmp(d->key, "type"))
             data_type = d;
@@ -228,6 +227,8 @@ static char *expand_topic(char *topic, char const *format, data_t *data, char co
             data_channel = d;
         else if (!strcmp(d->key, "id"))
             data_id = d;
+        else if (!strcmp(d->key, "protocol")) // NOTE: needs "-M protocol"
+            data_protocol = d;
     }
 
     // consume entire format string
@@ -281,6 +282,8 @@ static char *expand_topic(char *topic, char const *format, data_t *data, char co
             data_token = data_channel;
         else if (!strncmp(t_start, "id", t_end - t_start))
             data_token = data_id;
+        else if (!strncmp(t_start, "protocol", t_end - t_start))
+            data_token = data_protocol;
         else {
             fprintf(stderr, "%s: unknown token \"%.*s\"\n", __func__, (int)(t_end - t_start), t_start);
             exit(1);
@@ -304,7 +307,7 @@ static char *expand_topic(char *topic, char const *format, data_t *data, char co
 }
 
 // <prefix>[/type][/model][/subtype][/channel][/id]/battery: "OK"|"LOW"
-static void print_mqtt_data(data_output_t *output, data_t *data, char *format)
+static void print_mqtt_data(data_output_t *output, data_t *data, char const *format)
 {
     data_output_mqtt_t *mqtt = (data_output_mqtt_t *)output;
 
@@ -325,6 +328,10 @@ static void print_mqtt_data(data_output_t *output, data_t *data, char *format)
             if (mqtt->states) {
                 size_t message_size = 20000; // state message need a large buffer
                 char *message       = malloc(message_size);
+                if (!message) {
+                    WARN_MALLOC("print_mqtt_data()");
+                    return; // NOTE: skip output on alloc failure.
+                }
                 data_print_jsons(data, message, message_size);
                 expand_topic(mqtt->topic, mqtt->states, data, mqtt->hostname);
                 mqtt_client_publish(mqtt->mgr, mqtt->topic, message);
@@ -370,20 +377,32 @@ static void print_mqtt_data(data_output_t *output, data_t *data, char *format)
     *orig = '\0'; // restore topic
 }
 
-static void print_mqtt_string(data_output_t *output, char const *str, char *format)
+static void print_mqtt_string(data_output_t *output, char const *str, char const *format)
 {
     data_output_mqtt_t *mqtt = (data_output_mqtt_t *)output;
     mqtt_client_publish(mqtt->mgr, mqtt->topic, str);
 }
 
-static void print_mqtt_double(data_output_t *output, double data, char *format)
+static void print_mqtt_double(data_output_t *output, double data, char const *format)
 {
     char str[20];
-    int ret = snprintf(str, 20, "%f", data);
+    // use scientific notation for very big/small values
+    if (data > 1e7 || data < 1e-4) {
+        int ret = snprintf(str, 20, "%g", data);
+    }
+    else {
+        int ret = snprintf(str, 20, "%.5f", data);
+        // remove trailing zeros, always keep one digit after the decimal point
+        char *p = str + ret - 1;
+        while (*p == '0' && p[-1] != '.') {
+            *p-- = '\0';
+        }
+    }
+
     print_mqtt_string(output, str, format);
 }
 
-static void print_mqtt_int(data_output_t *output, int data, char *format)
+static void print_mqtt_int(data_output_t *output, int data, char const *format)
 {
     char str[20];
     int ret = snprintf(str, 20, "%d", data);
@@ -419,24 +438,30 @@ static void data_output_mqtt_free(data_output_t *output)
 
 static char *mqtt_topic_default(char const *topic, char const *base, char const *suffix)
 {
-    if (topic)
-        return strdup(topic);
-
-    if (!base)
-        return strdup(suffix);
-
     char path[256];
-    snprintf(path, sizeof(path), "%s/%s", base, suffix);
-    return strdup(path);
+    char const *p;
+    if (topic) {
+        p = topic;
+    }
+    else if (!base) {
+        p = suffix;
+    }
+    else {
+        snprintf(path, sizeof(path), "%s/%s", base, suffix);
+        p = path;
+    }
+
+    char *ret = strdup(p);
+    if (!ret)
+        WARN_STRDUP("mqtt_topic_default()");
+    return ret;
 }
 
 struct data_output *data_output_mqtt_create(char const *host, char const *port, char *opts, char const *dev_hint)
 {
     data_output_mqtt_t *mqtt = calloc(1, sizeof(data_output_mqtt_t));
-    if (!mqtt) {
-        fprintf(stderr, "calloc() failed in %s() %s:%d\n", __func__, __FILE__, __LINE__);
-        exit(1);
-    }
+    if (!mqtt)
+        FATAL_CALLOC("data_output_mqtt_create()");
 
     gethostname(mqtt->hostname, sizeof(mqtt->hostname) - 1);
     mqtt->hostname[sizeof(mqtt->hostname) - 1] = '\0';
