@@ -125,7 +125,6 @@ const char* m_bus_device_type_str(uint8_t devType) {
         case 0x33:  str = "Bidirectional repeater";break;
         case 0x36:  str = "Radio converter (system side)";break;
         case 0x37:  str = "Radio converter (meter side)";break;
-        case 0x94:  str = "Hager TR210 KNX RF";break;
         default:    break;  // Unknown
     }
     return str;
@@ -139,6 +138,13 @@ typedef struct {
     uint8_t     ST;
     uint16_t    CW;         // Configuration word
     uint8_t     pl_offset;  // Payload offset
+    /* KNX */
+    uint8_t     knx_ctrl;
+    uint16_t    src;
+    uint16_t    dst;
+    uint8_t     l_npci;
+    uint8_t     tpci;
+    uint8_t     apci;
 } m_bus_block2_t;
 
 // Data structure for block 1
@@ -151,6 +157,8 @@ typedef struct {
     uint8_t     A_DevType;    // Address, Device Type
     uint16_t    CRC;      // Optional (Only for Format A)
     m_bus_block2_t block2;
+    int         knx_mode;
+    uint8_t     knx_sn[6];
 } m_bus_block1_t;
 
 typedef struct {
@@ -192,7 +200,7 @@ static char* oms_hum_el[4][4] = {
 {"Error 31","Error 32","Error 33","Error 34",}
 };
 
-static int m_bus_decode_records(data_t *data, const uint8_t *b, uint8_t dif_coding, uint8_t vif_linear, uint8_t vif_uam, uint8_t dif_sn, uint8_t dif_ff) {
+static int m_bus_decode_records(data_t *data, const uint8_t *b, uint8_t dif_coding, uint8_t vif_linear, uint8_t vif_uam, uint8_t dif_sn, uint8_t dif_ff, uint8_t dif_su) {
     int ret = consumed_bytes[dif_coding&0x03];
 
     switch (vif_linear) {
@@ -215,6 +223,16 @@ static int m_bus_decode_records(data_t *data, const uint8_t *b, uint8_t dif_codi
                 default:
                     break;
             }
+        case 0x7D:
+            switch(vif_uam) {
+                case 0x1b:
+                    data = data_append(data, "switch", "Switch", DATA_FORMAT, "%s", DATA_STRING, (b[0]==0x55) ? "open":"closed", NULL);
+                    break;
+                case 0x3a:
+                    /* Only use 32 bits of 48 available */
+                    data = data_append(data, ((dif_su==0)?"counter_0":"counter_1"), ((dif_su==0)?"Counter 0":"Counter 1"), DATA_FORMAT, "%d", DATA_INT, (b[3]<<24|b[2]<<16|b[1]<<8|b[0]), NULL);
+                    break;
+            }
         default:
             break;
     }
@@ -230,6 +248,7 @@ static void parse_payload(data_t *data, const m_bus_block1_t *block1, const m_bu
     uint8_t dif_coding = 0;
     uint8_t dif_sn = 0;
     uint8_t dif_ff = 0;
+    uint8_t dif_su = 0;
     uint8_t vif = 0;
     uint8_t vife_array[10] = {0};
     uint8_t vife_cnt = 0;
@@ -237,7 +256,7 @@ static void parse_payload(data_t *data, const m_bus_block1_t *block1, const m_bu
     uint8_t vif_linear = 0;
     uint8_t vife = 0;
     uint8_t exponent = 0;
-    int cnt = 0, consumed_bytes;
+    int cnt = 0, consumed;
 
     /* Align offset pointer, there might be 2 0x2F bytes */
     if (b[off] == 0x2F) off++;
@@ -257,6 +276,7 @@ static void parse_payload(data_t *data, const m_bus_block1_t *block1, const m_bu
         /* Parse DIF */
         dif = b[off];
         dif_sn = (dif&0x40) >> 6;
+        dif_su = 0;
         while (b[off]&0x80) {
             off++;
             dife_array[dife_cnt++] = b[off];
@@ -264,6 +284,7 @@ static void parse_payload(data_t *data, const m_bus_block1_t *block1, const m_bu
         }
         // Only use first dife in dife_array
         dif_sn = ((dife_array[0]&0x0F) << 1) | dif_sn;
+        dif_su = ((dife_array[0]&0x40) >> 6);
         off++;
         dif_coding = dif&0x0F;
         dif_ff = (dif&0x30) >> 4;
@@ -288,10 +309,10 @@ static void parse_payload(data_t *data, const m_bus_block1_t *block1, const m_bu
             vif_uam = vif&0x7F;
         }
 
-        consumed_bytes = m_bus_decode_records(data, &b[off], dif_coding, vif_linear, vif_uam, dif_sn, dif_ff);
-        if (consumed_bytes==-1) return;
+        consumed = m_bus_decode_records(data, &b[off], dif_coding, vif_linear, vif_uam, dif_sn, dif_ff, dif_su);
+        if (consumed == -1) return;
 
-        off +=consumed_bytes;
+        off +=consumed;
     }
     return;
 }
@@ -300,15 +321,25 @@ static int parse_block2(r_device *decoder, const m_bus_data_t *in, m_bus_block1_
     m_bus_block2_t *b2 = &block1->block2;
     const uint8_t *b = in->data+BLOCK1A_SIZE;
 
-    b2->CI = b[0];
-    /* Short transport layer */
-    if (b2->CI == 0x7A) {
-        b2->AC = b[1];
-        b2->ST = b[2];
-        b2->CW = b[4]<<8 | b[3];
-        b2->pl_offset = BLOCK1A_SIZE-2 + 5;
+    if (block1->knx_mode) {
+        b2->knx_ctrl = b[0];
+        b2->src = b[1]<< 8 | b[2];
+        b2->dst = b[3]<< 8 | b[4];
+        b2->l_npci = b[5];
+        b2->tpci = b[6];
+        b2->apci = b[7];
+        /* data */
+    } else {
+        b2->CI = b[0];
+        /* Short transport layer */
+        if (b2->CI == 0x7A) {
+            b2->AC = b[1];
+            b2->ST = b[2];
+            b2->CW = b[4]<<8 | b[3];
+            b2->pl_offset = BLOCK1A_SIZE-2 + 5;
+        }
+    //    printf("Instantaneous Value: %02x%02x : %f\n",b[9],b[10],((b[10]<<8)|b[9])*0.01);
     }
-//    printf("Instantaneous Value: %02x%02x : %f\n",b[9],b[10],((b[10]<<8)|b[9])*0.01);
     return 0;
 }
 
@@ -318,18 +349,17 @@ static int m_bus_decode_format_a(r_device *decoder, const m_bus_data_t *in, m_bu
     // Get Block 1
     block1->L         = in->data[0];
     block1->C         = in->data[1];
+
     /* Check for KNX RF default values */
     if ((in->data[2]==0xFF) && (in->data[3]==0x03)) {
-        block1->M_str[0] = 'K';
-        block1->M_str[1] = 'N';
-        block1->M_str[2] = 'X';
-        block1->M_str[3] = '\0';
+        block1->knx_mode = 1;
+        memcpy(block1->knx_sn, &in->data[4], 6);
     } else {
         m_bus_manuf_decode((uint32_t)(in->data[3] << 8 | in->data[2]), block1->M_str);    // Decode Manufacturer
+        block1->A_ID      = bcd2int(in->data[7])*1000000 + bcd2int(in->data[6])*10000 + bcd2int(in->data[5])*100 + bcd2int(in->data[4]);
+        block1->A_Version = in->data[8];
+        block1->A_DevType = in->data[9];
     }
-    block1->A_ID      = bcd2int(in->data[7])*1000000 + bcd2int(in->data[6])*10000 + bcd2int(in->data[5])*100 + bcd2int(in->data[4]);
-    block1->A_Version = in->data[8];
-    block1->A_DevType = in->data[9];
 
     // Store length of data
     out->length      = block1->L-9 + BLOCK1A_SIZE-2;
@@ -414,7 +444,25 @@ static void m_bus_output_data(r_device *decoder, const m_bus_data_t *out, const 
     for (unsigned n=0; n<out->length; n++) { sprintf(str_buf+n*2, "%02x", out->data[n]); }
 
     // Output data
-    data = data_make(
+    if (block1->knx_mode) {
+        char sn_str[7*2] = {0};
+        for (unsigned n=0; n<6; n++) { sprintf(sn_str+n*2, "%02x", block1->knx_sn[n]); }
+
+        data = data_make(
+        "model",    "",             DATA_STRING,    _X("KNX-RF","KNX-RF"),
+        "sn",       "SN",           DATA_STRING,    sn_str,
+        "knx_ctrl", "KNX-Ctrl",     DATA_FORMAT,    "0x%02X", DATA_INT, block1->block2.knx_ctrl,
+        "src",      "Src",          DATA_FORMAT,    "0x%04X", DATA_INT, block1->block2.src,
+        "dst",      "Dst",          DATA_FORMAT,    "0x%04X", DATA_INT, block1->block2.dst,
+        "l_npci",   "L/NPCI",       DATA_FORMAT,    "0x%02X", DATA_INT, block1->block2.l_npci,
+        "tpci",     "TPCI",         DATA_FORMAT,    "0x%02X", DATA_INT, block1->block2.tpci,
+        "apci",     "APCI",         DATA_FORMAT,    "0x%02X", DATA_INT, block1->block2.apci,
+        "data_length","Data Length",DATA_INT,       out->length,
+        "data",     "Data",         DATA_STRING,    str_buf,
+        "mic",      "Integrity",    DATA_STRING,    "CRC",
+        NULL);
+    } else {
+        data = data_make(
         "model",    "",             DATA_STRING,    _X("Wireless-MBus","Wireless M-Bus"),
         "mode",     "Mode",         DATA_STRING,    mode,
         "M",        "Manufacturer", DATA_STRING,    block1->M_str,
@@ -428,7 +476,7 @@ static void m_bus_output_data(r_device *decoder, const m_bus_data_t *out, const 
         "data",     "Data",         DATA_STRING,    str_buf,
         "mic",      "Integrity",    DATA_STRING,    "CRC",
         NULL);
-
+    }
     if(block1->block2.CI) {
         data = data_append(data,
         "CI",     "Control Info",   DATA_FORMAT,    "0x%02X",   DATA_INT, block1->block2.CI,
@@ -643,6 +691,18 @@ static char *output_fields[] = {
     "version",
     "type",
     "type_string",
+    "CI",
+    "AC",
+    "ST",
+    "CW",
+    "sn",
+    "knx_ctrl",
+    "src",
+    "dst",
+    "l_npci",
+    "tpci",
+    "apci",
+    "crc",
     NULL
 };
 
@@ -671,6 +731,7 @@ r_device m_bus_mode_s = {
     .reset_limit    = ((1000.0/32.768)*9), // 9 bit periods
     .decode_fn      = &m_bus_mode_s_callback,
     .disabled       = 0,    // Disable per default, as it runs on non-standard frequency
+    .fields         = output_fields,
 };
 
 

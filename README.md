@@ -8,7 +8,7 @@ Original readme from merbanan/rtl_433:
 ===========
 # rtl_433
 
-rtl_433 (despite the name) is a generic data receiver, mainly for the 433.92 MHz, 868 MHz (SRD), 315 MHz, and 915 MHz ISM bands.
+rtl_433 (despite the name) is a generic data receiver, mainly for the 433.92 MHz, 868 MHz (SRD), 315 MHz, 345 MHz, and 915 MHz ISM bands.
 
 The official source code is in the https://github.com/merbanan/rtl_433/ repository.
 
@@ -92,7 +92,7 @@ Read the Test Data section at the bottom.
 		= Supported device protocols =
     [01]  Silvercrest Remote Control
     [02]  Rubicson Temperature Sensor
-    [03]  Prologue Temperature Sensor
+    [03]  Prologue, FreeTec NC-7104, NC-7159-675 temperature sensor
     [04]  Waveman Switch Transmitter
     [06]* ELV EM 1000
     [07]* ELV WS 2000
@@ -106,7 +106,7 @@ Read the Test Data section at the bottom.
     [16]  AlectoV1 Weather Sensor (Alecto WS3500 WS4500 Ventus W155/W044 Oregon)
     [17]  Cardin S466-TX2
     [18]  Fine Offset Electronics, WH2, WH5, Telldus Temperature/Humidity/Rain Sensor
-    [19]  Nexus Temperature & Humidity Sensor
+    [19]  Nexus, FreeTec NC-7345, NX-3980 temperature/humidity sensor
     [20]  Ambient Weather Temperature Sensor
     [21]  Calibeur RF-104 Sensor
     [22]* X10 RF
@@ -132,7 +132,7 @@ Read the Test Data section at the bottom.
     [44]  CurrentCost Current Sensor
     [45]  emonTx OpenEnergyMonitor
     [46]  HT680 Remote control
-    [47]  Conrad S3318P Temperature & Humidity Sensor
+    [47]  Conrad S3318P, FreeTec NC-5849-913 temperature humidity sensor
     [48]  Akhan 100F14 remote keyless entry
     [49]  Quhwa
     [50]  OSv1 Temperature Sensor
@@ -156,7 +156,7 @@ Read the Test Data section at the bottom.
     [70]  Honeywell Door/Window Sensor, 2Gig DW10/DW11, RE208 repeater
     [71]  Maverick ET-732/733 BBQ Sensor
     [72]* RF-tech
-    [73]  LaCrosse TX141-Bv2, TX141TH-Bv2, TX141-Bv3, TX141W sensor
+    [73]  LaCrosse TX141-Bv2, TX141TH-Bv2, TX141-Bv3, TX141W, TX145wsdth sensor
     [74]  Acurite 00275rm,00276rm Temp/Humidity with optional probe
     [75]  LaCrosse TX35DTH-IT, TFA Dostmann 30.3155 Temperature/Humidity sensor
     [76]  LaCrosse TX29IT Temperature sensor
@@ -168,13 +168,13 @@ Read the Test Data section at the bottom.
     [82]  Citroen TPMS
     [83]  Oil Ultrasonic STANDARD ASK
     [84]  Thermopro TP11 Thermometer
-    [85]  Solight TE44
+    [85]  Solight TE44/TE66, EMOS E0107T, NX-6876-917
     [86]  Wireless Smoke and Heat Detector GS 558
     [87]  Generic wireless motion sensor
     [88]  Toyota TPMS
     [89]  Ford TPMS
     [90]  Renault TPMS
-    [91]  inFactory
+    [91]  inFactory, FreeTec NC-3982-913 temperature humidity sensor
     [92]  FT-004-B Temperature Sensor
     [93]  Ford Car Key
     [94]  Philips outdoor temperature sensor (type AJ3650)
@@ -188,7 +188,7 @@ Read the Test Data section at the bottom.
     [102]  SimpliSafe Home Security System (May require disabling automatic gain for KeyPad decodes)
     [103]  Sensible Living Mini-Plant Moisture Sensor
     [104]  Wireless M-Bus, Mode C&T, 100kbps (-f 868950000 -s 1200000)
-    [105]* Wireless M-Bus, Mode S, 32.768kbps (-f 868300000 -s 1000000)
+    [105]  Wireless M-Bus, Mode S, 32.768kbps (-f 868300000 -s 1000000)
     [106]* Wireless M-Bus, Mode R, 4.8kbps (-f 868330000)
     [107]* Wireless M-Bus, Mode F, 2.4kbps
     [108]  Hyundai WS SENZOR Remote Temperature Sensor
@@ -196,7 +196,7 @@ Read the Test Data section at the bottom.
     [110]  PMV-107J (Toyota) TPMS
     [111]  Emos TTX201 Temperature Sensor
     [112]  Ambient Weather TX-8300 Temperature/Humidity Sensor
-    [113]  Ambient Weather WH31E Thermo-Hygrometer Sensor
+    [113]  Ambient Weather WH31E Thermo-Hygrometer Sensor, EcoWitt WH40 rain gauge
     [114]  Maverick et73
     [115]  Honeywell ActivLink, Wireless Doorbell
     [116]  Honeywell ActivLink, Wireless Doorbell (FSK)
@@ -229,6 +229,9 @@ Read the Test Data section at the bottom.
     [143]  Holman Industries iWeather WS5029 weather station (older PWM)
     [144]  TBH weather sensor
     [145]  WS2032 weather station
+    [146]  Auriol AFW2A1 temperature/humidity sensor
+    [147]  TFA Drop Rain Gauge 30.3233.01
+    [148]  DSC Security Contact (WS4945)
 
 * Disabled by default, use -R n or -G
 
