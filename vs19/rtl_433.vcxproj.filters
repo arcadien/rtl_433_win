@@ -211,6 +211,9 @@
     <ClCompile Include="..\src\devices\archos_tbh.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\devices\auriol_afw2a1.c">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\devices\auriol_hg02832.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
@@ -491,6 +494,9 @@
       <Filter>Source Files\devices</Filter>
     </ClCompile>
     <ClCompile Include="..\src\devices\tfa_30_3196.c">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\tfa_drop_30.3233.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
     <ClCompile Include="..\src\devices\tfa_pool_thermometer.c">
