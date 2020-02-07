@@ -117,8 +117,7 @@ Afterwards, messages are sent every 45s.
 #define TFA_DROP_STARTBYTE 0x3 /* Inverted already */
 #define TFA_DROP_MINREPEATS 2
 
-static int tfa_drop_303233_decode(r_device *decoder,
-        bitbuffer_t *bitbuffer)
+static int tfa_drop_303233_decode(r_device *decoder, bitbuffer_t *bitbuffer)
 {
     data_t *data;
     int row_index;
@@ -175,10 +174,10 @@ static int tfa_drop_303233_decode(r_device *decoder,
 
     /* clang-format off */
     data = data_make(
-            "model",      "",           DATA_STRING, "TFA-Drop-30.3233.01",
+            "model",      "",           DATA_STRING, "TFA-Drop",
             "id",         "",           DATA_FORMAT, "%5x", DATA_INT,  sensor_id,
-            "rain_mm",    "Rain in MM", DATA_DOUBLE, rain_mm,
             "battery_ok", "Battery OK", DATA_INT,    !battery_low,
+            "rain_mm",    "Rain in MM", DATA_DOUBLE, rain_mm,
             "mic",        "Integrity",  DATA_STRING, "CHECKSUM",
             NULL);
     /* clang-format on */
@@ -191,8 +190,8 @@ static int tfa_drop_303233_decode(r_device *decoder,
 static char *output_fields[] = {
         "model",
         "id",
-        "rain_mm",
         "battery_ok",
+        "rain_mm",
         "mic",
         NULL,
 };

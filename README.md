@@ -213,7 +213,7 @@ Read the Test Data section at the bottom.
     [127]  Ecowitt Wireless Outdoor Thermometer WH53/WH0280/WH0281A
     [128]  DirecTV RC66RX Remote Control
     [129]* Eurochron temperature and humidity sensor
-    [130]* IKEA Sparsnäs Energy Meter Monitor
+    [130]  IKEA Sparsnäs Energy Meter Monitor
     [131]  Microchip HCS200 KeeLoq Hopping Encoder based remotes
     [132]  TFA Dostmann 30.3196 T/H outdoor sensor
     [133]  Rubicson 48659 Thermometer
@@ -326,6 +326,8 @@ E.g. -X "n=doorbell,m=OOK_PWM,s=400,l=800,r=7000,g=1000,match={24}0xa9878c,repea
 	  devices: posts device and sensor info in nested topics
 	The topic string will expand keys like [/model]
 	E.g. -F "mqtt://localhost:1883,user=USERNAME,pass=PASSWORD,retain=0,devices=rtl_433[/id]"
+	With MQTT each rtl_433 instance needs a distinct driver selection. The MQTT Client-ID is computed from the driver string.
+	If you use multiple RTL-SDR, perhaps set a serial and select by that (helps not to get the wrong antenna).
 	Specify InfluxDB 2.0 server with e.g. -F "influx://localhost:9999/api/v2/write?org=<org>&bucket=<bucket>,token=<authtoken>"
 	Specify InfluxDB 1.x server with e.g. -F "influx://localhost:8086/write?db=<db>&p=<password>&u=<user>"
 	  Additional parameter -M time:unix:usec:utc for correct timestamps in InfluxDB recommended
@@ -333,7 +335,7 @@ E.g. -X "n=doorbell,m=OOK_PWM,s=400,l=800,r=7000,g=1000,match={24}0xa9878c,repea
 
 
 		= Meta information option =
-  [-M time[:<options>]|protocol|level|stats|bits|newmodel] Add various metadata to every output line.
+  [-M time[:<options>]|protocol|level|stats|bits|oldmodel] Add various metadata to every output line.
 	Use "time" to add current date and time meta data (preset for live inputs).
 	Use "time:rel" to add sample position meta data (preset for read-file and stdin).
 	Use "time:unix" to show the seconds since unix epoch as time meta data.
@@ -349,10 +351,7 @@ E.g. -X "n=doorbell,m=OOK_PWM,s=400,l=800,r=7000,g=1000,match={24}0xa9878c,repea
 	Use "stats[:[<level>][:<interval>]]" to report statistics (default: 600 seconds).
 	  level 0: no report, 1: report successful devices, 2: report active devices, 3: report all
 	Use "bits" to add bit representation to code outputs (for debug).
-
-Note:	Use "newmodel" to transition to new model keys. This will become the default someday.
-	A table of changes and discussion is at https://github.com/merbanan/rtl_433/pull/986.
-
+	Note: You can use "oldmodel" to get the old model keys. This will be removed shortly.
 
 
 		= Read file option =

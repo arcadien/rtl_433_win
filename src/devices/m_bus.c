@@ -223,6 +223,7 @@ static int m_bus_decode_records(data_t *data, const uint8_t *b, uint8_t dif_codi
                 default:
                     break;
             }
+            break;
         case 0x7D:
             switch(vif_uam) {
                 case 0x1b:
@@ -231,6 +232,8 @@ static int m_bus_decode_records(data_t *data, const uint8_t *b, uint8_t dif_codi
                 case 0x3a:
                     /* Only use 32 bits of 48 available */
                     data = data_append(data, ((dif_su==0)?"counter_0":"counter_1"), ((dif_su==0)?"Counter 0":"Counter 1"), DATA_FORMAT, "%d", DATA_INT, (b[3]<<24|b[2]<<16|b[1]<<8|b[0]), NULL);
+                    break;
+                default:
                     break;
             }
         default:
@@ -338,7 +341,7 @@ static int parse_block2(r_device *decoder, const m_bus_data_t *in, m_bus_block1_
             b2->CW = b[4]<<8 | b[3];
             b2->pl_offset = BLOCK1A_SIZE-2 + 5;
         }
-    //    printf("Instantaneous Value: %02x%02x : %f\n",b[9],b[10],((b[10]<<8)|b[9])*0.01);
+    //    fprintf(stderr, "Instantaneous Value: %02x%02x : %f\n",b[9],b[10],((b[10]<<8)|b[9])*0.01);
     }
     return 0;
 }
@@ -722,7 +725,6 @@ r_device m_bus_mode_c_t = {
 
 // Mode S1, S1-m, S2, T2 (Meter RX),    (Meter RX not so interesting)
 // Frequency 868.3 MHz, Bitrate 32.768 kbps, Modulation Manchester FSK
-// Untested!!! (Need samples)
 r_device m_bus_mode_s = {
     .name           = "Wireless M-Bus, Mode S, 32.768kbps (-f 868300000 -s 1000000)",   // Minimum samplerate = 1 MHz (15 samples of 32kb/s manchester coded)
     .modulation     = FSK_PULSE_PCM,
@@ -730,7 +732,7 @@ r_device m_bus_mode_s = {
     .long_width     = (1000.0/32.768),
     .reset_limit    = ((1000.0/32.768)*9), // 9 bit periods
     .decode_fn      = &m_bus_mode_s_callback,
-    .disabled       = 0,    // Disable per default, as it runs on non-standard frequency
+    .disabled       = 0,
     .fields         = output_fields,
 };
 
