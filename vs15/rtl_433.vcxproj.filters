@@ -553,6 +553,9 @@
     <ClCompile Include="..\src\devices\vaillant_vrt340f.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\devices\visonic_powercode.c">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\devices\waveman.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
