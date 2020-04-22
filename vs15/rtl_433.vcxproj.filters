@@ -107,6 +107,9 @@
     <ClInclude Include="..\include\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\write_sigrok.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>    
     <ClInclude Include="..\src\getopt\getopt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -185,6 +188,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\write_sigrok.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\getopt\getopt.c">
@@ -280,6 +286,9 @@
     <ClCompile Include="..\src\devices\emontx.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\devices\ert.c">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile> 
     <ClCompile Include="..\src\devices\esa.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
@@ -377,6 +386,9 @@
       <Filter>Source Files\devices</Filter>
     </ClCompile>
     <ClCompile Include="..\src\devices\kerui.c">
+      <Filter>Source Files\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\klimalogg.c">
       <Filter>Source Files\devices</Filter>
     </ClCompile>
     <ClCompile Include="..\src\devices\lacrosse.c">
