@@ -91,12 +91,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\libusb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\include\libusb-1.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\x64\Debug;..\..\libusb\x64\Debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\x64\Debug;..\..\libusb\MS64\dll</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;rtlsdr.lib;libusb-1.0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -110,14 +110,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\libusb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\include\libusb-1.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\x64\Release;..\..\libusb\x64\Release\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\x64\Release;..\..\libusb\MS64\dll</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;rtlsdr.lib;libusb-1.0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -131,14 +131,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\libusb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\include\libusb-1.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\Win32\Release;..\..\libusb\Win32\Release\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\Win32\Release;..\..\libusb\MS32\dll</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;rtlsdr.lib;libusb-1.0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -150,12 +150,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\libusb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\include\libusb-1.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\Win32\Debug;..\..\libusb\Win32\Debug\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\librtlsdr\vs19\Win32\Debug;..\..\libusb\MS32\dll</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;rtlsdr.lib;libusb-1.0.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMTD</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -250,6 +250,7 @@
     <ClCompile Include="..\src\devices\elro_db286a.c" />
     <ClCompile Include="..\src\devices\elv.c" />
     <ClCompile Include="..\src\devices\emontx.c" />
+    <ClCompile Include="..\src\devices\ert.c" />
     <ClCompile Include="..\src\devices\esa.c" />
     <ClCompile Include="..\src\devices\esic_emt7110.c" />
     <ClCompile Include="..\src\devices\esperanza_ews.c" />
@@ -283,6 +284,7 @@
     <ClCompile Include="..\src\devices\intertechno.c" />
     <ClCompile Include="..\src\devices\kedsum.c" />
     <ClCompile Include="..\src\devices\kerui.c" />
+    <ClCompile Include="..\src\devices\klimalogg.c" />
     <ClCompile Include="..\src\devices\lacrosse.c" />
     <ClCompile Include="..\src\devices\lacrosse_tx141x.c" />
     <ClCompile Include="..\src\devices\lacrosse_tx35.c" />
@@ -337,6 +339,7 @@
     <ClCompile Include="..\src\devices\ts_ft002.c" />
     <ClCompile Include="..\src\devices\ttx201.c" />
     <ClCompile Include="..\src\devices\vaillant_vrt340f.c" />
+    <ClCompile Include="..\src\devices\visonic_powercode.c" />
     <ClCompile Include="..\src\devices\waveman.c" />
     <ClCompile Include="..\src\devices\wg_pb12v1.c" />
     <ClCompile Include="..\src\devices\ws2032.c" />
