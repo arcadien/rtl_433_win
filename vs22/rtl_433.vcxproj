@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -68,7 +68,8 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <LibraryPath>C:\Users\aurelien\Documents\git\rtl_433_win\vs22\x64\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\aurelien\Documents\git\rtl_433_win\vs22\x64\Debug;$(LibraryPath);C:\Users\aurelien\Documents\git\libusb\MS64\dll</LibraryPath>
+    <ExecutablePath>C:\Users\aurelien\Documents\git\libusb\MS64\dll;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -91,8 +92,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTLSDR;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_USE_MATH_DEFINES;THREADS </PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include\;..\src\;..\..\librtlsdr\include;..\..\libusb\include\libusb-1.0</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -204,16 +206,117 @@
     <ClCompile Include="..\src\compat_time.c" />
     <ClCompile Include="..\src\confparse.c" />
     <ClCompile Include="..\src\data.c" />
+    <ClCompile Include="..\src\data_tag.c" />
     <ClCompile Include="..\src\decoder_util.c" />
+    <ClCompile Include="..\src\devices\abmt.c" />
+    <ClCompile Include="..\src\devices\acurite_01185m.c" />
+    <ClCompile Include="..\src\devices\ant_antplus.c" />
+    <ClCompile Include="..\src\devices\atech_ws308.c" />
+    <ClCompile Include="..\src\devices\auriol_4ld5661.c" />
+    <ClCompile Include="..\src\devices\auriol_aft77b2.c" />
+    <ClCompile Include="..\src\devices\auriol_ahfl.c" />
+    <ClCompile Include="..\src\devices\badger_water.c" />
+    <ClCompile Include="..\src\devices\baldr_rain.c" />
+    <ClCompile Include="..\src\devices\blueline.c" />
+    <ClCompile Include="..\src\devices\bresser_6in1.c" />
+    <ClCompile Include="..\src\devices\bresser_7in1.c" />
+    <ClCompile Include="..\src\devices\burnhardbbq.c" />
+    <ClCompile Include="..\src\devices\cavius.c" />
+    <ClCompile Include="..\src\devices\ced7000.c" />
+    <ClCompile Include="..\src\devices\celsia_czc1.c" />
+    <ClCompile Include="..\src\devices\cmr113.c" />
+    <ClCompile Include="..\src\devices\cotech_36_7959.c" />
+    <ClCompile Include="..\src\devices\ecodhome.c" />
+    <ClCompile Include="..\src\devices\efth800.c" />
+    <ClCompile Include="..\src\devices\emax.c" />
+    <ClCompile Include="..\src\devices\emos_e6016.c" />
+    <ClCompile Include="..\src\devices\emos_e6016_rain.c" />
+    <ClCompile Include="..\src\devices\enocean_erp1.c" />
+    <ClCompile Include="..\src\devices\ert_idm.c" />
+    <ClCompile Include="..\src\devices\ert_scm.c" />
+    <ClCompile Include="..\src\devices\fineoffset_wh31l.c" />
+    <ClCompile Include="..\src\devices\fineoffset_wh45.c" />
+    <ClCompile Include="..\src\devices\fineoffset_wn34.c" />
+    <ClCompile Include="..\src\devices\fineoffset_ws80.c" />
+    <ClCompile Include="..\src\devices\fineoffset_ws90.c" />
+    <ClCompile Include="..\src\devices\flowis.c" />
+    <ClCompile Include="..\src\devices\funkbus.c" />
+    <ClCompile Include="..\src\devices\gasmate_ba1008.c" />
+    <ClCompile Include="..\src\devices\geo_minim.c" />
+    <ClCompile Include="..\src\devices\govee.c" />
+    <ClCompile Include="..\src\devices\honeywell_cm921.c" />
+    <ClCompile Include="..\src\devices\inkbird_ith20r.c" />
+    <ClCompile Include="..\src\devices\insteon.c" />
+    <ClCompile Include="..\src\devices\jasco.c" />
+    <ClCompile Include="..\src\devices\lacrosse_breezepro.c" />
+    <ClCompile Include="..\src\devices\lacrosse_r1.c" />
+    <ClCompile Include="..\src\devices\lacrosse_th3.c" />
+    <ClCompile Include="..\src\devices\lacrosse_tx31u.c" />
+    <ClCompile Include="..\src\devices\lacrosse_tx34.c" />
+    <ClCompile Include="..\src\devices\lacrosse_wr1.c" />
+    <ClCompile Include="..\src\devices\markisol.c" />
+    <ClCompile Include="..\src\devices\marlec_solar.c" />
+    <ClCompile Include="..\src\devices\maverick_xr30.c" />
+    <ClCompile Include="..\src\devices\megacode.c" />
+    <ClCompile Include="..\src\devices\missil_ml0757.c" />
+    <ClCompile Include="..\src\devices\neptune_r900.c" />
+    <ClCompile Include="..\src\devices\nice_flor_s.c" />
+    <ClCompile Include="..\src\devices\oil_smart.c" />
+    <ClCompile Include="..\src\devices\oil_watchman_advanced.c" />
+    <ClCompile Include="..\src\devices\proflame2.c" />
+    <ClCompile Include="..\src\devices\rainpoint.c" />
+    <ClCompile Include="..\src\devices\regency_fan.c" />
+    <ClCompile Include="..\src\devices\revolt_nc5462.c" />
+    <ClCompile Include="..\src\devices\rojaflex.c" />
+    <ClCompile Include="..\src\devices\rubicson_pool_48942.c" />
+    <ClCompile Include="..\src\devices\scmplus.c" />
+    <ClCompile Include="..\src\devices\secplus_v1.c" />
+    <ClCompile Include="..\src\devices\secplus_v2.c" />
+    <ClCompile Include="..\src\devices\sharp_spc775.c" />
+    <ClCompile Include="..\src\devices\simplisafe_gen3.c" />
+    <ClCompile Include="..\src\devices\somfy_iohc.c" />
+    <ClCompile Include="..\src\devices\somfy_rts.c" />
+    <ClCompile Include="..\src\devices\srsmith_pool_srs_2c_tx.c" />
+    <ClCompile Include="..\src\devices\telldus_ft0385r.c" />
+    <ClCompile Include="..\src\devices\tfa_14_1504_v2.c" />
+    <ClCompile Include="..\src\devices\tfa_30_3221.c" />
+    <ClCompile Include="..\src\devices\tfa_marbella.c" />
+    <ClCompile Include="..\src\devices\thermopro_tx2.c" />
+    <ClCompile Include="..\src\devices\thermopro_tx2c.c" />
+    <ClCompile Include="..\src\devices\tpms_abarth124.c" />
+    <ClCompile Include="..\src\devices\tpms_ave.c" />
+    <ClCompile Include="..\src\devices\tpms_eezrv.c" />
+    <ClCompile Include="..\src\devices\tpms_hyundai_vdo.c" />
+    <ClCompile Include="..\src\devices\tpms_jansite_solar.c" />
+    <ClCompile Include="..\src\devices\tpms_kia.c" />
+    <ClCompile Include="..\src\devices\tpms_porsche.c" />
+    <ClCompile Include="..\src\devices\tpms_renault_0435r.c" />
+    <ClCompile Include="..\src\devices\tpms_truck.c" />
+    <ClCompile Include="..\src\devices\tpms_tyreguard400.c" />
+    <ClCompile Include="..\src\devices\vauno_en8822c.c" />
+    <ClCompile Include="..\src\devices\wec2103.c" />
+    <ClCompile Include="..\src\devices\yale_hsa.c" />
     <ClCompile Include="..\src\fileformat.c" />
+    <ClCompile Include="..\src\http_server.c" />
+    <ClCompile Include="..\src\jsmn.c" />
     <ClCompile Include="..\src\list.c" />
+    <ClCompile Include="..\src\logger.c" />
     <ClCompile Include="..\src\mongoose.c" />
     <ClCompile Include="..\src\optparse.c" />
+    <ClCompile Include="..\src\output_file.c" />
     <ClCompile Include="..\src\output_influx.c" />
+    <ClCompile Include="..\src\output_log.c" />
     <ClCompile Include="..\src\output_mqtt.c" />
-    <ClCompile Include="..\src\pulse_demod.c" />
+    <ClCompile Include="..\src\output_rtltcp.c" />
+    <ClCompile Include="..\src\output_trigger.c" />
+    <ClCompile Include="..\src\output_udp.c" />
+    <ClCompile Include="..\src\pulse_analyzer.c" />
+    <ClCompile Include="..\src\pulse_data.c" />
     <ClCompile Include="..\src\pulse_detect.c" />
     <ClCompile Include="..\src\pulse_detect_fsk.c" />
+    <ClCompile Include="..\src\pulse_slicer.c" />
+    <ClCompile Include="..\src\raw_output.c" />
+    <ClCompile Include="..\src\rfraw.c" />
     <ClCompile Include="..\src\r_api.c" />
     <ClCompile Include="..\src\r_util.c" />
     <ClCompile Include="..\src\rtl_433.c" />
@@ -251,7 +354,6 @@
     <ClCompile Include="..\src\devices\elro_db286a.c" />
     <ClCompile Include="..\src\devices\elv.c" />
     <ClCompile Include="..\src\devices\emontx.c" />
-    <ClCompile Include="..\src\devices\ert.c" />
     <ClCompile Include="..\src\devices\esa.c" />
     <ClCompile Include="..\src\devices\esic_emt7110.c" />
     <ClCompile Include="..\src\devices\esperanza_ews.c" />

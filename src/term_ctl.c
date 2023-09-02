@@ -167,16 +167,17 @@ static void *_term_init(FILE *fp)
                          (GetFileType(console->hnd) != FILE_TYPE_CHAR);
 
     // Test for Windows 10 to enable ANSI output, needs netapi32.dll
+    /*
     LPWKSTA_INFO_100 pBuf = NULL;
     NET_API_STATUS nStatus;
     nStatus = NetWkstaGetInfo(NULL, 100, (LPBYTE *)&pBuf);
     if (nStatus == NERR_Success) {
-        console->ansi = (pBuf->wki100_platform_id == 500) && (pBuf->wki100_ver_major >= 10);
+        console->ansi = (pBuf-a>wki100_platform_id == 500) && (pBuf->wki100_ver_major >= 10);
     }
     if (pBuf != NULL) {
         NetApiBufferFree(pBuf);
     }
-
+    */
     // Windows 10 version 1511 added ANSI filters to cmd and terminal.
     // To use ANSI colors in Windows versions 1511 to 1903 requires setting VirtualTerminalLevel
     // by calling the SetConsoleMode API with the ENABLE_VIRTUAL_TERMINAL_PROCESSING flag.
